@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stockmate/core/utils/margin_text.dart';
+import 'package:stockmate/core/utils/page_navigation.dart';
+import 'package:stockmate/presentation/screens/home_page/home_screen.dart';
 
 import '../../../core/constants/colors.dart';
 import '../../widgets/custom_apptext.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_textfield.dart';
+import '../../widgets/snackbar.dart';
 import 'cubit/auth_cubit.dart';
 
 class AuthScreen extends StatelessWidget {
@@ -17,7 +20,25 @@ class AuthScreen extends StatelessWidget {
       backgroundColor: colorWhite,
       body: BlocProvider(
         create: (context) => AuthCubit(),
-        child: BlocBuilder<AuthCubit, AuthState>(
+        child: BlocConsumer<AuthCubit, AuthState>(
+          listener: (context, state) {
+            final cubit = context.read<AuthCubit>();
+            if (state is AuthSuccess) {
+              ShowCustomSnackbar.success(
+                context,
+                message: cubit.isLoginPage
+                    ? "Login Successful!"
+                    : "Account Created!",
+              );
+              if (cubit.isLoginPage == false) {
+                cubit.changeScreen();
+              } else {
+                Screen.openAsNewPage(context, HomeScreen());
+              }
+            } else if (state is AuthError) {
+              ShowCustomSnackbar.error(context, message: state.message);
+            }
+          },
           builder: (context, state) {
             final cubit = context.read<AuthCubit>();
             return SingleChildScrollView(
@@ -35,7 +56,7 @@ class AuthScreen extends StatelessWidget {
                           children: [
                             AppText(
                               cubit.isLoginPage
-                                  ? 'Login to Stockmate Account'
+                                  ? 'Login to Stockmate '
                                   : 'Create a Stockmate Account',
                               color: blackText,
                               size: 18,
@@ -52,6 +73,7 @@ class AuthScreen extends StatelessWidget {
                               : Column(
                                   children: [
                                     CustomTextField(
+                                      controller: cubit.userNameController,
                                       width: double.infinity,
                                       boxname: 'User Name',
                                       hintText: 'Enter User Name',
@@ -60,21 +82,20 @@ class AuthScreen extends StatelessWidget {
                                   ],
                                 ),
                         ),
-
                         CustomTextField(
+                          controller: cubit.emailController,
                           width: double.infinity,
                           boxname: 'Email',
                           hintText: 'Enter email',
                         ),
                         10.hBox,
                         CustomTextField(
+                          controller: cubit.passwordController,
                           width: double.infinity,
                           boxname: 'Password',
                           hintText: 'Enter password',
                           isPassword: true,
                         ),
-
-                        // Confirm password (only in signup)
                         AnimatedSize(
                           duration: const Duration(milliseconds: 400),
                           curve: Curves.easeInOut,
@@ -84,6 +105,8 @@ class AuthScreen extends StatelessWidget {
                                   children: [
                                     10.hBox,
                                     CustomTextField(
+                                      controller:
+                                          cubit.confirmPasswordController,
                                       width: double.infinity,
                                       boxname: 'Confirm Password',
                                       hintText: 'Enter password again',
@@ -92,18 +115,21 @@ class AuthScreen extends StatelessWidget {
                                   ],
                                 ),
                         ),
-
                         40.hBox,
                         CustomButton(
                           width: double.infinity,
-                          borderRadius: 8,
-                          textColor: colorWhite,
                           boxColor: primaryColor,
-                          onTap: () {},
+                          onTap: () {
+                            if (cubit.isLoginPage == true) {
+                              cubit.login();
+                            } else {
+                              cubit.signUp();
+                            }
+                          },
+                          isLoading: state is AuthLoading,
                           text: cubit.isLoginPage ? 'Login' : 'Sign Up',
                         ),
                         30.hBox,
-
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
