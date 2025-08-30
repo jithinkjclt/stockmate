@@ -1,0 +1,11 @@
+import 'package:flutter/material.dart';
+const Color scaffoldColor = Color(0xFF9F9F9F);
+const Color primaryColor = Color(0xFF36BA86);
+const Color blackText = Color(0xFF000000);
+const Color whiteText = Colors.white;
+const Color greyText = Color(0xFF8A8A8F);
+const Color textFormGrey = Color(0xFFC7C7CC);
+const Color colorWhite = Colors.white;
+const Color lightBlackColor = Color(0xFF1C1C1E);
+const Color greyFormColor = Color(0xFF8A8A8F);
+const Color greyBorder = Color(0xFFD1D1D6);
