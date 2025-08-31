@@ -46,4 +46,48 @@ class InventoryCubit extends Cubit<InventoryState> {
       return filtered;
     });
   }
+
+  Future<void> deleteProduct(String productId) async {
+    try {
+      final querySnapshot = await _firestore
+          .collectionGroup("products")
+          .where('id', isEqualTo: productId)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        await querySnapshot.docs.first.reference.delete();
+        emit(InventoryFilterChanged()); // triggers UI rebuild
+        print("Deleted product: $productId");
+      } else {
+        throw Exception("Product with ID $productId not found.");
+      }
+    } catch (e) {
+      print("Delete failed: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> updateStockStatus(String productId, bool newStatus) async {
+    try {
+      final querySnapshot = await _firestore
+          .collectionGroup("products")
+          .where('id', isEqualTo: productId)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        await querySnapshot.docs.first.reference.update({
+          'isInStock': newStatus,
+        });
+        emit(InventoryFilterChanged()); // triggers UI rebuild
+        print("Updated stock for $productId → $newStatus");
+      } else {
+        throw Exception("Product with ID $productId not found.");
+      }
+    } catch (e) {
+      print("Update stock failed: $e");
+      rethrow;
+    }
+  }
 }

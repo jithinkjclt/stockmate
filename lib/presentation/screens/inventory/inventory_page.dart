@@ -7,6 +7,7 @@ import 'package:stockmate/presentation/screens/inventory/widget/product_tile.dar
 import 'package:stockmate/presentation/screens/inventory/widget/shimmer.dart';
 import '../../../data/models/product_modal.dart';
 import '../../widgets/search_fild.dart';
+import '../../widgets/snackbar.dart';
 
 class InventoryPage extends StatelessWidget {
   const InventoryPage({super.key});
@@ -56,11 +57,12 @@ class InventoryPage extends StatelessWidget {
                 child: StreamBuilder<List<Product>>(
                   stream: cubit.getProductsStream(),
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                    final products = snapshot.data ?? [];
+
+                    if (snapshot.connectionState == ConnectionState.waiting && products.isEmpty) {
                       return ListView.builder(
                         itemCount: 5,
-                        itemBuilder: (context, index) =>
-                            const ProductTileSkeleton(),
+                        itemBuilder: (context, index) => const ProductTileSkeleton(),
                       );
                     }
 
@@ -68,36 +70,54 @@ class InventoryPage extends StatelessWidget {
                       return Center(child: Text(snapshot.error.toString()));
                     }
 
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    if (products.isEmpty) {
                       return const Center(child: Text("No products found"));
                     }
-
-                    final products = snapshot.data!;
 
                     return ListView.builder(
                       itemCount: products.length,
                       itemBuilder: (context, index) {
                         final product = products[index];
+
                         return ProductTile(
                           addedTime: product.formattedDateTime,
                           imageUrl: product.imageUrl,
                           title: product.title,
                           productId: product.id,
                           isInStock: product.isInStock,
-                          onOptionSelected: (value) {
-                            switch (value) {
-                              case "edit":
-                                print("Edit ${product.title}");
-                                break;
-                              case "delete":
-                                print("Delete ${product.title}");
-                                break;
-                              case "out_of_stock":
-                                print("${product.title} → Out of Stock");
-                                break;
-                              case "in_stock":
-                                print("${product.title} → In Stock");
-                                break;
+                          onOptionSelected: (value) async {
+                            try {
+                              switch (value) {
+                                case "edit":
+                                  print("Edit ${product.title}");
+                                  break;
+                                case "delete":
+                                  await cubit.deleteProduct(product.id);
+                                  ShowCustomSnackbar.success(
+                                    context,
+                                    message: "${product.title} deleted",
+                                  );
+                                  break;
+                                case "out_of_stock":
+                                  await cubit.updateStockStatus(product.id, false);
+                                  ShowCustomSnackbar.warning(
+                                    context,
+                                    message: "${product.title} → Out of Stock",
+                                  );
+                                  break;
+                                case "in_stock":
+                                  await cubit.updateStockStatus(product.id, true);
+                                  ShowCustomSnackbar.success(
+                                    context,
+                                    message: "${product.title} → In Stock",
+                                  );
+                                  break;
+                              }
+                            } catch (e) {
+                              ShowCustomSnackbar.error(
+                                context,
+                                message: "Error: $e",
+                              );
                             }
                           },
                         );
