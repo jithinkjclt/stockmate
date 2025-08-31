@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:stockmate/presentation/screens/bottombar/bottombar.dart';
 import 'package:stockmate/presentation/screens/splash/splash_screen.dart';
 
 import 'firebase_options.dart';
@@ -16,6 +17,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: SplashScreen(), debugShowCheckedModeBanner: false);
+    return MaterialApp(home: BottomBar(), debugShowCheckedModeBanner: false);
   }
 }
