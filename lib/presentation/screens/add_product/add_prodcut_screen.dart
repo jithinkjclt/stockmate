@@ -9,9 +9,7 @@ import 'package:stockmate/presentation/widgets/custom_textfield.dart';
 import 'package:stockmate/presentation/widgets/custom_button.dart';
 import '../../widgets/snackbar.dart';
 
-// Renamed for clarity
 class AddOrEditProductScreen extends StatelessWidget {
-  // Accept an optional product and its documentId for editing
   final Product? product;
   final String? documentId;
 
@@ -23,9 +21,7 @@ class AddOrEditProductScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Determine if we are in edit mode
     final bool isEditMode = product != null;
-
     return Scaffold(
       backgroundColor: colorWhite,
       appBar: AppBar(
@@ -37,7 +33,6 @@ class AddOrEditProductScreen extends StatelessWidget {
             color: lightBlackColor,
           ),
         ),
-        // Dynamic title based on mode
         title: AppText(
           isEditMode ? 'Edit Product' : 'Add Product',
           size: 18,
@@ -46,7 +41,6 @@ class AddOrEditProductScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      // Pass the product to the cubit
       body: BlocProvider(
         create: (context) => AddOrEditProductCubit(product: product),
         child: BlocConsumer<AddOrEditProductCubit, AddProductState>(
@@ -84,7 +78,6 @@ class AddOrEditProductScreen extends StatelessWidget {
                       width: double.infinity,
                       boxname: 'Product ID',
                       hintText: 'Enter Product ID',
-                      // Disable ID field in edit mode
                     ),
                     10.hBox,
                     CustomTextField(
@@ -170,7 +163,6 @@ class AddOrEditProductScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Center(
-                          // Conditional image display logic
                           child: cubit.imageFile != null
                               ? Image.file(
                             cubit.imageFile!,
@@ -196,7 +188,6 @@ class AddOrEditProductScreen extends StatelessWidget {
                     CustomButton(
                       isLoading: state is AddProductLoading,
                       onTap: () {
-                        // All validation remains the same
                         if (cubit.idController.text.trim().isEmpty) {
                           ShowCustomSnackbar.warning(context, message: "Product ID is required");
                           return;
@@ -213,13 +204,11 @@ class AddOrEditProductScreen extends StatelessWidget {
                           ShowCustomSnackbar.warning(context, message: "Please select Stock Status");
                           return;
                         }
-                        // Call the updated save method
                         cubit.saveOrUpdateProduct(
                           isEdit: isEditMode,
                           documentId: documentId,
                         );
                       },
-                      // Dynamic button text
                       text: isEditMode ? "Update Product" : "Save Product",
                       boxColor: primaryColor,
                       borderRadius: 10,
@@ -228,7 +217,7 @@ class AddOrEditProductScreen extends StatelessWidget {
                       fontSize: 14,
                       weight: FontWeight.w600,
                     ),
-                    20.hBox, // Padding at the bottom
+                    20.hBox,
                   ],
                 ),
               ),

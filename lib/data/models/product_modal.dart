@@ -7,7 +7,7 @@ class Product {
   final DateTime dateTime;
   final String description;
   final String imageUrl;
-  final String? path; // 👈 optional
+  final String? path;
 
   Product({
     required this.id,
@@ -16,7 +16,7 @@ class Product {
     required this.dateTime,
     required this.description,
     required this.imageUrl,
-    this.path, // 👈 optional
+    this.path,
   });
 
   Map<String, dynamic> toMap() {
@@ -27,7 +27,7 @@ class Product {
       'dateTime': dateTime.toIso8601String(),
       'description': description,
       'imageUrl': imageUrl,
-      if (path != null) 'path': path, // 👈 only add if not null
+      if (path != null) 'path': path,
     };
   }
 
@@ -39,7 +39,7 @@ class Product {
       dateTime: DateTime.tryParse(map['dateTime'] ?? '') ?? DateTime.now(),
       description: map['description'] ?? '',
       imageUrl: map['imageUrl'] ?? '',
-      path: map['path'], // 👈 safe, will be null if not present
+      path: map['path'],
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stockmate/core/utils/margin_text.dart';
+import 'package:stockmate/presentation/screens/detail_page/detail_page.dart';
 import 'package:stockmate/presentation/screens/inventory/cubit/inventory_cubit.dart';
 import 'package:stockmate/presentation/screens/inventory/widget/filter_tile.dart';
 import 'package:stockmate/presentation/screens/inventory/widget/product_tile.dart';
@@ -83,61 +84,67 @@ class InventoryPage extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final product = products[index];
 
-                        return ProductTile(
-                          addedTime: product.formattedDateTime,
-                          imageUrl: product.imageUrl,
-                          title: product.title,
-                          productId: product.id,
-                          isInStock: product.isInStock,
-                          onOptionSelected: (value) async {
-                            try {
-                              switch (value) {
-                                case "edit":
-                                  await Screen.open(
-                                    context,
-                                    AddOrEditProductScreen(
-                                      product: product,
-                                      documentId: product.id,
-                                    ),
-                                    begin: const Offset(1, 1),
-                                    curve: Curves.easeInOutCirc,
-                                  );
-                                  break;
-                                case "delete":
-                                  await cubit.deleteProduct(product.id);
-                                  ShowCustomSnackbar.success(
-                                    context,
-                                    message: "${product.title} deleted",
-                                  );
-                                  break;
-                                case "out_of_stock":
-                                  await cubit.updateStockStatus(
-                                    product.id,
-                                    false,
-                                  );
-                                  ShowCustomSnackbar.warning(
-                                    context,
-                                    message: "${product.title} → Out of Stock",
-                                  );
-                                  break;
-                                case "in_stock":
-                                  await cubit.updateStockStatus(
-                                    product.id,
-                                    true,
-                                  );
-                                  ShowCustomSnackbar.success(
-                                    context,
-                                    message: "${product.title} → In Stock",
-                                  );
-                                  break;
-                              }
-                            } catch (e) {
-                              ShowCustomSnackbar.error(
-                                context,
-                                message: "Error: $e",
-                              );
-                            }
+                        return InkWell(
+                          onTap: () {
+                            Screen.open(context, ProductDetailScreen(product: product));
                           },
+                          child: ProductTile(
+                            addedTime: product.formattedDateTime,
+                            imageUrl: product.imageUrl,
+                            title: product.title,
+                            productId: product.id,
+                            isInStock: product.isInStock,
+                            onOptionSelected: (value) async {
+                              try {
+                                switch (value) {
+                                  case "edit":
+                                    await Screen.open(
+                                      context,
+                                      AddOrEditProductScreen(
+                                        product: product,
+                                        documentId: product.id,
+                                      ),
+                                      begin: const Offset(1, 1),
+                                      curve: Curves.easeInOutCirc,
+                                    );
+                                    break;
+                                  case "delete":
+                                    await cubit.deleteProduct(product.id);
+                                    ShowCustomSnackbar.success(
+                                      context,
+                                      message: "${product.title} deleted",
+                                    );
+                                    break;
+                                  case "out_of_stock":
+                                    await cubit.updateStockStatus(
+                                      product.id,
+                                      false,
+                                    );
+                                    ShowCustomSnackbar.warning(
+                                      context,
+                                      message:
+                                          "${product.title} → Out of Stock",
+                                    );
+                                    break;
+                                  case "in_stock":
+                                    await cubit.updateStockStatus(
+                                      product.id,
+                                      true,
+                                    );
+                                    ShowCustomSnackbar.success(
+                                      context,
+                                      message: "${product.title} → In Stock",
+                                    );
+                                    break;
+                                }
+                              } catch (e) {
+                                ShowCustomSnackbar.error(
+                                  context,
+                                  message: "Error: $e",
+                                );
+                              }
+                            },
+                          ),
                         );
                       },
                     );
