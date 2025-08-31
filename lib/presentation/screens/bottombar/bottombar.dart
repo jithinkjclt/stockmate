@@ -38,7 +38,12 @@ class BottomBar extends StatelessWidget {
                       key: const ValueKey("fab_inventory"),
                       backgroundColor: primaryColor,
                       onPressed: () {
-                        Screen.open(context, AddProductScreen());
+                        Screen.open(
+                          context,
+                          AddProductScreen(),
+                          begin: const Offset(1, 1),
+                          curve: Curves.easeInOutCirc,
+                        );
                       },
                       child: const Icon(Icons.add, color: Colors.white),
                     )

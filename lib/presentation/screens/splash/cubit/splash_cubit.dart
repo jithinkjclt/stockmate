@@ -5,6 +5,7 @@ import 'package:stockmate/presentation/screens/auth/auth_screen.dart';
 import 'package:stockmate/presentation/screens/home_page/home_screen.dart';
 
 import '../../../../data/datasources/local/shared_pref.dart';
+import '../../bottombar/bottombar.dart';
 
 part 'splash_state.dart';
 
@@ -19,7 +20,7 @@ class SplashCubit extends Cubit<SplashState> {
     final hasUser = await userRepository.isLoggedIn();
 
     if (hasUser) {
-      Screen.openAsNewPage(context, HomeScreen());
+      Screen.openAsNewPage(context, BottomBar());
     } else {
       Screen.openAsNewPage(context, AuthScreen());
     }

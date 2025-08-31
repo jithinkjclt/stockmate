@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stockmate/core/utils/margin_text.dart';
 import 'package:stockmate/core/utils/page_navigation.dart';
+import 'package:stockmate/presentation/screens/bottombar/bottombar.dart';
 import 'package:stockmate/presentation/screens/home_page/home_screen.dart';
 
 import '../../../core/constants/colors.dart';
@@ -33,7 +34,7 @@ class AuthScreen extends StatelessWidget {
               if (cubit.isLoginPage == false) {
                 cubit.changeScreen();
               } else {
-                Screen.openAsNewPage(context, HomeScreen());
+                Screen.openAsNewPage(context, BottomBar());
               }
             } else if (state is AuthError) {
               ShowCustomSnackbar.error(context, message: state.message);

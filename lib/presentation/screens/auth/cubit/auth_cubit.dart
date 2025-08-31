@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
 import 'package:stockmate/data/datasources/local/shared_pref.dart';
@@ -71,6 +72,19 @@ class AuthCubit extends Cubit<AuthState> {
       );
       await _auth.currentUser?.updateDisplayName(userName);
 
+      final user = _auth.currentUser;
+      if (user != null) {
+        await FirebaseFirestore.instance
+            .collection("users")
+            .doc(user.uid)
+            .set({
+          "uid": user.uid,
+          "name": userName,
+          "email": user.email,
+          "createdAt": FieldValue.serverTimestamp(),
+        });
+      }
+
       emit(AuthSuccess(user: _auth.currentUser));
     } on FirebaseAuthException catch (e) {
       String message = 'An error occurred. Please try again.';
@@ -116,9 +130,8 @@ class AuthCubit extends Cubit<AuthState> {
         );
         final userData = UserService();
 
-
-        await   userData.saveUser(userModel);
-        await   userData.printUser();
+        await userData.saveUser(userModel);
+        await userData.printUser();
       }
 
       emit(AuthSuccess(user: _auth.currentUser));

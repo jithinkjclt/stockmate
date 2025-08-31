@@ -39,6 +39,12 @@ dependencies:
   firebase_auth: ^5.0.0
   shared_preferences: ^2.5.3
   pie_chart: ^5.4.0
+  image_picker: ^1.2.0
+  cloud_firestore: ^5.4.4
+  firebase_storage: ^12.3.4
+  intl: ^0.20.2
+  shimmer: ^3.0.0
+
 
 
 dev_dependencies:

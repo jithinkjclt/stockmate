@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Product {
   final String id;
   final String title;
@@ -5,6 +7,7 @@ class Product {
   final DateTime dateTime;
   final String description;
   final String imageUrl;
+  final String? path; // 👈 optional
 
   Product({
     required this.id,
@@ -13,9 +16,9 @@ class Product {
     required this.dateTime,
     required this.description,
     required this.imageUrl,
+    this.path, // 👈 optional
   });
 
-  // Convert Product -> Map (for API or local storage)
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -24,10 +27,10 @@ class Product {
       'dateTime': dateTime.toIso8601String(),
       'description': description,
       'imageUrl': imageUrl,
+      if (path != null) 'path': path, // 👈 only add if not null
     };
   }
 
-  // Convert Map -> Product
   factory Product.fromMap(Map<String, dynamic> map) {
     return Product(
       id: map['id'] ?? '',
@@ -36,6 +39,14 @@ class Product {
       dateTime: DateTime.tryParse(map['dateTime'] ?? '') ?? DateTime.now(),
       description: map['description'] ?? '',
       imageUrl: map['imageUrl'] ?? '',
+      path: map['path'], // 👈 safe, will be null if not present
     );
   }
+
+  String get formattedDate => DateFormat('dd/MM/yyyy').format(dateTime);
+
+  String get formattedTime => DateFormat('hh:mm a').format(dateTime);
+
+  String get formattedDateTime =>
+      DateFormat('dd/MM/yyyy hh:mm a').format(dateTime);
 }

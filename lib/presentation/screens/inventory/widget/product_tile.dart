@@ -16,7 +16,7 @@ class ProductTile extends StatelessWidget {
     required this.title,
     required this.productId,
     required this.isInStock,
-    this.addedTime, // optional param
+    this.addedTime,
     required this.onOptionSelected,
   });
 
