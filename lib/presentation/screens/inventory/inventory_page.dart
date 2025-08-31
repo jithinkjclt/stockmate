@@ -5,9 +5,11 @@ import 'package:stockmate/presentation/screens/inventory/cubit/inventory_cubit.d
 import 'package:stockmate/presentation/screens/inventory/widget/filter_tile.dart';
 import 'package:stockmate/presentation/screens/inventory/widget/product_tile.dart';
 import 'package:stockmate/presentation/screens/inventory/widget/shimmer.dart';
+import '../../../core/utils/page_navigation.dart';
 import '../../../data/models/product_modal.dart';
 import '../../widgets/search_fild.dart';
 import '../../widgets/snackbar.dart';
+import '../add_product/add_prodcut_screen.dart';
 
 class InventoryPage extends StatelessWidget {
   const InventoryPage({super.key});
@@ -59,10 +61,12 @@ class InventoryPage extends StatelessWidget {
                   builder: (context, snapshot) {
                     final products = snapshot.data ?? [];
 
-                    if (snapshot.connectionState == ConnectionState.waiting && products.isEmpty) {
+                    if (snapshot.connectionState == ConnectionState.waiting &&
+                        products.isEmpty) {
                       return ListView.builder(
                         itemCount: 5,
-                        itemBuilder: (context, index) => const ProductTileSkeleton(),
+                        itemBuilder: (context, index) =>
+                            const ProductTileSkeleton(),
                       );
                     }
 
@@ -89,7 +93,15 @@ class InventoryPage extends StatelessWidget {
                             try {
                               switch (value) {
                                 case "edit":
-                                  print("Edit ${product.title}");
+                                  await Screen.open(
+                                    context,
+                                    AddOrEditProductScreen(
+                                      product: product,
+                                      documentId: product.id,
+                                    ),
+                                    begin: const Offset(1, 1),
+                                    curve: Curves.easeInOutCirc,
+                                  );
                                   break;
                                 case "delete":
                                   await cubit.deleteProduct(product.id);
@@ -99,14 +111,20 @@ class InventoryPage extends StatelessWidget {
                                   );
                                   break;
                                 case "out_of_stock":
-                                  await cubit.updateStockStatus(product.id, false);
+                                  await cubit.updateStockStatus(
+                                    product.id,
+                                    false,
+                                  );
                                   ShowCustomSnackbar.warning(
                                     context,
                                     message: "${product.title} → Out of Stock",
                                   );
                                   break;
                                 case "in_stock":
-                                  await cubit.updateStockStatus(product.id, true);
+                                  await cubit.updateStockStatus(
+                                    product.id,
+                                    true,
+                                  );
                                   ShowCustomSnackbar.success(
                                     context,
                                     message: "${product.title} → In Stock",

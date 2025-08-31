@@ -40,7 +40,7 @@ class BottomBar extends StatelessWidget {
                       onPressed: () {
                         Screen.open(
                           context,
-                          AddProductScreen(),
+                          AddOrEditProductScreen(),
                           begin: const Offset(1, 1),
                           curve: Curves.easeInOutCirc,
                         );

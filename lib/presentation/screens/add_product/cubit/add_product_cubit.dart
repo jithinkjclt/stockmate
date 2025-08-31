@@ -9,8 +9,14 @@ import '../../../../data/models/product_modal.dart';
 
 part 'add_product_state.dart';
 
-class AddProductCubit extends Cubit<AddProductState> {
-  AddProductCubit() : super(AddProductInitial());
+class AddOrEditProductCubit extends Cubit<AddProductState> {
+  final Product? product;
+
+  AddOrEditProductCubit({this.product}) : super(AddProductInitial()) {
+    if (product != null) {
+      _initializeForEdit();
+    }
+  }
 
   final titleController = TextEditingController();
   final idController = TextEditingController();
@@ -18,6 +24,15 @@ class AddProductCubit extends Cubit<AddProductState> {
 
   String? stockStatus;
   File? imageFile;
+  String? existingImageUrl;
+
+  void _initializeForEdit() {
+    idController.text = product!.id;
+    titleController.text = product!.title;
+    descriptionController.text = product!.description;
+    stockStatus = product!.isInStock ? "in stock" : "out of stock";
+    existingImageUrl = product!.imageUrl;
+  }
 
   void stockStatusChanged(String value) {
     stockStatus = value;
@@ -34,21 +49,21 @@ class AddProductCubit extends Cubit<AddProductState> {
     }
   }
 
-  Future<void> saveProduct() async {
+  Future<void> saveOrUpdateProduct({
+    required bool isEdit,
+    String? documentId,
+  }) async {
     try {
       emit(AddProductLoading());
-
-      if (idController.text.trim().isEmpty) {
-        emit(AddProductError("Product ID cannot be empty"));
-        return;
-      }
 
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         emit(AddProductError("User not logged in"));
         return;
       }
-      String? imageUrl = "";
+
+      String? imageUrl = existingImageUrl;
+
       if (imageFile != null) {
         final ref = FirebaseStorage.instance
             .ref()
@@ -58,23 +73,44 @@ class AddProductCubit extends Cubit<AddProductState> {
         await ref.putFile(imageFile!);
         imageUrl = await ref.getDownloadURL();
       }
-      final product = Product(
+
+      final productData = Product(
         id: idController.text.trim(),
         title: titleController.text.trim(),
         isInStock: stockStatus == "in stock",
-        dateTime: DateTime.now(),
+        dateTime: isEdit ? product!.dateTime : DateTime.now(),
         description: descriptionController.text.trim(),
-        imageUrl: imageUrl,
-      );
-      await FirebaseFirestore.instance
+        imageUrl: imageUrl ?? "",
+      ).toMap();
+
+      final productsCollection = FirebaseFirestore.instance
           .collection("users")
           .doc(user.uid)
-          .collection("products")
-          .add(product.toMap());
+          .collection("products");
+
+      if (isEdit) {
+        if (documentId == null) {
+          emit(AddProductError("Document ID is missing for update"));
+          return;
+        }
+        await productsCollection
+            .doc(documentId)
+            .set(productData, SetOptions(merge: true));
+      } else {
+        await productsCollection.add(productData);
+      }
 
       emit(AddProductSuccess());
     } catch (e) {
       emit(AddProductError(e.toString()));
     }
+  }
+
+  @override
+  Future<void> close() {
+    titleController.dispose();
+    idController.dispose();
+    descriptionController.dispose();
+    return super.close();
   }
 }
