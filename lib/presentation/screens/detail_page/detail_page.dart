@@ -60,6 +60,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final product = widget.product;
 
     return Scaffold(
+      backgroundColor: colorWhite,
       appBar: AppBar(
         backgroundColor: colorWhite,
         leading: InkWell(

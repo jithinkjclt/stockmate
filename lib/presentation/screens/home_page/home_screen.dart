@@ -49,14 +49,14 @@ class HomeScreen extends StatelessWidget {
                     Stack(
                       children: [
                         Center(
-                          child: Container(
+                          child: SizedBox(
                             height: 200,
                             child: PieChart(
                               dataMap: dataMap,
                               chartType: ChartType.disc,
                               baseChartColor: Colors.grey[200]!,
                               colorList: [
-                                const Color(0xff6dbaf2),
+                                primaryColor,
                                 const Color(0xffff8a8a),
                               ],
                               chartValuesOptions: const ChartValuesOptions(
