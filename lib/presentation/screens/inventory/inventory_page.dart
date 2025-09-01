@@ -6,8 +6,10 @@ import 'package:stockmate/presentation/screens/inventory/cubit/inventory_cubit.d
 import 'package:stockmate/presentation/screens/inventory/widget/filter_tile.dart';
 import 'package:stockmate/presentation/screens/inventory/widget/product_tile.dart';
 import 'package:stockmate/presentation/screens/inventory/widget/shimmer.dart';
+import '../../../core/constants/colors.dart';
 import '../../../core/utils/page_navigation.dart';
 import '../../../data/models/product_modal.dart';
+import '../../widgets/custom_button.dart';
 import '../../widgets/search_fild.dart';
 import '../../widgets/snackbar.dart';
 import '../add_product/add_prodcut_screen.dart';
@@ -86,7 +88,10 @@ class InventoryPage extends StatelessWidget {
 
                         return InkWell(
                           onTap: () {
-                            Screen.open(context, ProductDetailScreen(product: product));
+                            Screen.open(
+                              context,
+                              ProductDetailScreen(product: product),
+                            );
                           },
                           child: ProductTile(
                             addedTime: product.formattedDateTime,
@@ -150,6 +155,20 @@ class InventoryPage extends StatelessWidget {
                     );
                   },
                 ),
+              ),
+              25.hBox,
+              CustomButton(
+                width: double.infinity,
+                boxColor: primaryColor,
+                onTap: () {
+                  Screen.open(
+                    context,
+                    AddOrEditProductScreen(),
+                    begin: const Offset(0, 1),
+                    curve: Curves.easeInOutCirc,
+                  );
+                },
+                text: 'Add Product',
               ),
             ],
           );

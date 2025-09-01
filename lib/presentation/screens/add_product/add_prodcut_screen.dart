@@ -13,11 +13,7 @@ class AddOrEditProductScreen extends StatelessWidget {
   final Product? product;
   final String? documentId;
 
-  const AddOrEditProductScreen({
-    super.key,
-    this.product,
-    this.documentId,
-  });
+  const AddOrEditProductScreen({super.key, this.product, this.documentId});
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +46,6 @@ class AddOrEditProductScreen extends StatelessWidget {
             } else if (state is AddProductSuccess) {
               ShowCustomSnackbar.success(
                 context,
-                // Dynamic success message
                 message: isEditMode
                     ? "Product updated successfully"
                     : "Product added successfully",
@@ -60,7 +55,6 @@ class AddOrEditProductScreen extends StatelessWidget {
           },
           builder: (context, state) {
             final cubit = context.read<AddOrEditProductCubit>();
-
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -117,7 +111,11 @@ class AddOrEditProductScreen extends StatelessWidget {
                               value: "in stock",
                               child: Row(
                                 children: [
-                                  Icon(Icons.check, size: 16, color: Colors.green),
+                                  Icon(
+                                    Icons.check,
+                                    size: 16,
+                                    color: Colors.green,
+                                  ),
                                   SizedBox(width: 6),
                                   AppText("In Stock", size: 12),
                                 ],
@@ -127,7 +125,11 @@ class AddOrEditProductScreen extends StatelessWidget {
                               value: "out of stock",
                               child: Row(
                                 children: [
-                                  Icon(Icons.close, size: 16, color: Colors.red),
+                                  Icon(
+                                    Icons.close,
+                                    size: 16,
+                                    color: Colors.red,
+                                  ),
                                   SizedBox(width: 6),
                                   AppText("Out of Stock", size: 12),
                                 ],
@@ -156,7 +158,7 @@ class AddOrEditProductScreen extends StatelessWidget {
                         cubit.pickImage();
                       },
                       child: Container(
-                        height: 200, // Increased height for better view
+                        height: 200,
                         width: double.infinity,
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey.shade400),
@@ -165,22 +167,22 @@ class AddOrEditProductScreen extends StatelessWidget {
                         child: Center(
                           child: cubit.imageFile != null
                               ? Image.file(
-                            cubit.imageFile!,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                          )
+                                  cubit.imageFile!,
+                                  // fit: BoxFit.cover,
+                                  width: double.infinity,
+                                )
                               : (cubit.existingImageUrl != null &&
-                              cubit.existingImageUrl!.isNotEmpty)
+                                    cubit.existingImageUrl!.isNotEmpty)
                               ? Image.network(
-                            cubit.existingImageUrl!,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                          )
+                                  cubit.existingImageUrl!,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                )
                               : const Icon(
-                            Icons.add_a_photo,
-                            size: 40,
-                            color: Colors.grey,
-                          ),
+                                  Icons.add_a_photo,
+                                  size: 40,
+                                  color: Colors.grey,
+                                ),
                         ),
                       ),
                     ),
@@ -189,19 +191,31 @@ class AddOrEditProductScreen extends StatelessWidget {
                       isLoading: state is AddProductLoading,
                       onTap: () {
                         if (cubit.idController.text.trim().isEmpty) {
-                          ShowCustomSnackbar.warning(context, message: "Product ID is required");
+                          ShowCustomSnackbar.warning(
+                            context,
+                            message: "Product ID is required",
+                          );
                           return;
                         }
                         if (cubit.titleController.text.trim().isEmpty) {
-                          ShowCustomSnackbar.warning(context, message: "Product Title is required");
+                          ShowCustomSnackbar.warning(
+                            context,
+                            message: "Product Title is required",
+                          );
                           return;
                         }
                         if (cubit.descriptionController.text.trim().isEmpty) {
-                          ShowCustomSnackbar.warning(context, message: "Description is required");
+                          ShowCustomSnackbar.warning(
+                            context,
+                            message: "Description is required",
+                          );
                           return;
                         }
                         if (cubit.stockStatus == null) {
-                          ShowCustomSnackbar.warning(context, message: "Please select Stock Status");
+                          ShowCustomSnackbar.warning(
+                            context,
+                            message: "Please select Stock Status",
+                          );
                           return;
                         }
                         cubit.saveOrUpdateProduct(

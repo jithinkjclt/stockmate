@@ -12,6 +12,7 @@ import 'package:pie_chart/pie_chart.dart';
 import '../../../core/constants/colors.dart';
 import '../../../data/models/product_modal.dart';
 import '../../widgets/snackbar.dart';
+import '../add_product/add_prodcut_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -23,7 +24,6 @@ class HomeScreen extends StatelessWidget {
       child: BlocBuilder<InventoryCubit, InventoryState>(
         builder: (context, state) {
           final cubit = context.read<InventoryCubit>();
-
           return StreamBuilder<List<Product>>(
             stream: cubit.getProductsStream(),
             builder: (context, snapshot) {
@@ -46,53 +46,47 @@ class HomeScreen extends StatelessWidget {
                       weight: FontWeight.bold,
                     ),
                     25.hBox,
-                    Stack(
-                      children: [
-                        Center(
-                          child: SizedBox(
-                            height: 200,
-                            child: PieChart(
-                              dataMap: dataMap,
-                              chartType: ChartType.disc,
-                              baseChartColor: Colors.grey[200]!,
-                              colorList: [
-                                primaryColor,
-                                const Color(0xffff8a8a),
-                              ],
-                              chartValuesOptions: const ChartValuesOptions(
-                                showChartValuesInPercentage: true,
-                                showChartValuesOutside: true,
-                                chartValueStyle: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
+                    inStock + outOfStock <= 0
+                        ? SizedBox()
+                        : Center(
+                            child: SizedBox(
+                              height: 200,
+                              child: PieChart(
+                                dataMap: dataMap,
+                                chartType: ChartType.disc,
+                                baseChartColor: Colors.grey[200]!,
+                                colorList: [
+                                  primaryColor,
+                                  const Color(0xffff8a8a),
+                                ],
+                                chartValuesOptions: const ChartValuesOptions(
+                                  showChartValuesInPercentage: true,
+                                  showChartValuesOutside: true,
+                                  chartValueStyle: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
+                                legendOptions: const LegendOptions(
+                                  legendPosition: LegendPosition.right,
+                                  showLegends: true,
+                                  legendTextStyle: TextStyle(fontSize: 14),
+                                ),
+                                chartRadius:
+                                    MediaQuery.of(context).size.width / 2.5,
+                                ringStrokeWidth: 30,
                               ),
-                              legendOptions: const LegendOptions(
-                                legendPosition: LegendPosition.right,
-                                showLegends: true,
-                                legendTextStyle: TextStyle(fontSize: 14),
-                              ),
-                              chartRadius:
-                                  MediaQuery.of(context).size.width / 2.5,
-                              ringStrokeWidth: 30,
                             ),
                           ),
-                        ),
-                        Positioned(
-                          left: 100,
-                          top: 130,
-                          child: Row(
-                            children: [
-                              75.wBox,
-                              OrderTile(
-                                boxShadow: const Color(0xFF3bc288),
-                                backGroundColor: const Color(0xFFF4FFFA),
-                                text: "Total Products",
-                                count: inStock + outOfStock,
-                                icon: Icons.sell,
-                              ),
-                            ],
-                          ),
+                    Row(
+                      children: [
+                        75.wBox,
+                        OrderTile(
+                          boxShadow: const Color(0xFF3bc288),
+                          backGroundColor: const Color(0xFFF4FFFA),
+                          text: "Total Products",
+                          count: inStock + outOfStock,
+                          icon: Icons.sell,
                         ),
                       ],
                     ),
@@ -127,7 +121,19 @@ class HomeScreen extends StatelessWidget {
                         Spacer(),
                       ],
                     ),
-                    ListView.builder(
+                    products.isEmpty
+                        ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: AppText(
+                          "No products available",
+                          size: 16,
+                          color: Colors.grey,
+                          weight: FontWeight.w500,
+                        ),
+                      ),
+                    )
+                        : ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: products.length > 3 ? 3 : products.length,
@@ -150,7 +156,15 @@ class HomeScreen extends StatelessWidget {
                               try {
                                 switch (value) {
                                   case "edit":
-                                    print("Edit ${product.title}");
+                                    await Screen.open(
+                                      context,
+                                      AddOrEditProductScreen(
+                                        product: product,
+                                        documentId: product.id,
+                                      ),
+                                      begin: const Offset(1, 1),
+                                      curve: Curves.easeInOutCirc,
+                                    );
                                     break;
                                   case "delete":
                                     await cubit.deleteProduct(product.id);
@@ -160,21 +174,14 @@ class HomeScreen extends StatelessWidget {
                                     );
                                     break;
                                   case "out_of_stock":
-                                    await cubit.updateStockStatus(
-                                      product.id,
-                                      false,
-                                    );
+                                    await cubit.updateStockStatus(product.id, false);
                                     ShowCustomSnackbar.warning(
                                       context,
-                                      message:
-                                          "${product.title} → Out of Stock",
+                                      message: "${product.title} → Out of Stock",
                                     );
                                     break;
                                   case "in_stock":
-                                    await cubit.updateStockStatus(
-                                      product.id,
-                                      true,
-                                    );
+                                    await cubit.updateStockStatus(product.id, true);
                                     ShowCustomSnackbar.success(
                                       context,
                                       message: "${product.title} → In Stock",
@@ -191,7 +198,8 @@ class HomeScreen extends StatelessWidget {
                           ),
                         );
                       },
-                    ),
+                    )
+
                   ],
                 ),
               );

@@ -28,29 +28,7 @@ class BottomBar extends StatelessWidget {
         builder: (context, state) {
           final cubit = context.read<BottombarCubit>();
           return Scaffold(
-            floatingActionButton: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              transitionBuilder: (child, animation) {
-                return ScaleTransition(scale: animation, child: child);
-              },
-              child: cubit.index == 1
-                  ? FloatingActionButton(
-                      key: const ValueKey("fab_inventory"),
-                      backgroundColor: primaryColor,
-                      onPressed: () {
-                        Screen.open(
-                          context,
-                          AddOrEditProductScreen(),
-                          begin: const Offset(1, 1),
-                          curve: Curves.easeInOutCirc,
-                        );
-                      },
-                      child: const Icon(Icons.add, color: Colors.white),
-                    )
-                  : const SizedBox.shrink(key: ValueKey("fab_empty")),
-            ),
-            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-            appBar: AppBar(
+                      appBar: AppBar(
               backgroundColor: colorWhite,
               title: AppText(
                 cubit.index == 0
