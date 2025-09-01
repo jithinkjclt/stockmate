@@ -107,7 +107,6 @@ class InventoryPage extends StatelessWidget {
                                       context,
                                       AddOrEditProductScreen(
                                         product: product,
-                                        documentId: product.id,
                                       ),
                                       begin: const Offset(1, 1),
                                       curve: Curves.easeInOutCirc,

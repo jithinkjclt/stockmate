@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stockmate/core/constants/colors.dart';
 import 'package:stockmate/core/utils/margin_text.dart';
-import 'package:stockmate/data/models/product_modal.dart'; // Import your Product model
+import 'package:stockmate/data/models/product_modal.dart';
 import 'package:stockmate/presentation/screens/add_product/cubit/add_product_cubit.dart';
 import 'package:stockmate/presentation/widgets/custom_apptext.dart';
 import 'package:stockmate/presentation/widgets/custom_textfield.dart';
@@ -11,13 +11,13 @@ import '../../widgets/snackbar.dart';
 
 class AddOrEditProductScreen extends StatelessWidget {
   final Product? product;
-  final String? documentId;
 
-  const AddOrEditProductScreen({super.key, this.product, this.documentId});
+  const AddOrEditProductScreen({super.key, this.product});
 
   @override
   Widget build(BuildContext context) {
     final bool isEditMode = product != null;
+
     return Scaffold(
       backgroundColor: colorWhite,
       appBar: AppBar(
@@ -50,11 +50,12 @@ class AddOrEditProductScreen extends StatelessWidget {
                     ? "Product updated successfully"
                     : "Product added successfully",
               );
-              Navigator.pop(context);
+              Navigator.pop(context, true); // pass result to refresh parent
             }
           },
           builder: (context, state) {
             final cubit = context.read<AddOrEditProductCubit>();
+
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12.0),
@@ -103,7 +104,6 @@ class AddOrEditProductScreen extends StatelessWidget {
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
-                          // Use cubit's value directly
                           value: cubit.stockStatus,
                           hint: const AppText("Select Stock Status", size: 12),
                           items: const [
@@ -111,11 +111,7 @@ class AddOrEditProductScreen extends StatelessWidget {
                               value: "in stock",
                               child: Row(
                                 children: [
-                                  Icon(
-                                    Icons.check,
-                                    size: 16,
-                                    color: Colors.green,
-                                  ),
+                                  Icon(Icons.check, size: 16, color: Colors.green),
                                   SizedBox(width: 6),
                                   AppText("In Stock", size: 12),
                                 ],
@@ -125,11 +121,7 @@ class AddOrEditProductScreen extends StatelessWidget {
                               value: "out of stock",
                               child: Row(
                                 children: [
-                                  Icon(
-                                    Icons.close,
-                                    size: 16,
-                                    color: Colors.red,
-                                  ),
+                                  Icon(Icons.close, size: 16, color: Colors.red),
                                   SizedBox(width: 6),
                                   AppText("Out of Stock", size: 12),
                                 ],
@@ -147,16 +139,14 @@ class AddOrEditProductScreen extends StatelessWidget {
                     ),
                     15.hBox,
                     const AppText(
-                      ' Choose Image (optional)',
+                      'Choose Image (optional)',
                       size: 12,
                       weight: FontWeight.w500,
                       color: greyFormColor,
                     ),
                     6.hBox,
                     InkWell(
-                      onTap: () {
-                        cubit.pickImage();
-                      },
+                      onTap: () => cubit.pickImage(),
                       child: Container(
                         height: 200,
                         width: double.infinity,
@@ -167,22 +157,21 @@ class AddOrEditProductScreen extends StatelessWidget {
                         child: Center(
                           child: cubit.imageFile != null
                               ? Image.file(
-                                  cubit.imageFile!,
-                                  // fit: BoxFit.cover,
-                                  width: double.infinity,
-                                )
-                              : (cubit.existingImageUrl != null &&
-                                    cubit.existingImageUrl!.isNotEmpty)
+                            cubit.imageFile!,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                              : (cubit.existingImageUrl?.isNotEmpty ?? false)
                               ? Image.network(
-                                  cubit.existingImageUrl!,
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                )
+                            cubit.existingImageUrl!,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          )
                               : const Icon(
-                                  Icons.add_a_photo,
-                                  size: 40,
-                                  color: Colors.grey,
-                                ),
+                            Icons.add_a_photo,
+                            size: 40,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
                     ),
@@ -191,37 +180,22 @@ class AddOrEditProductScreen extends StatelessWidget {
                       isLoading: state is AddProductLoading,
                       onTap: () {
                         if (cubit.idController.text.trim().isEmpty) {
-                          ShowCustomSnackbar.warning(
-                            context,
-                            message: "Product ID is required",
-                          );
+                          ShowCustomSnackbar.warning(context, message: "Product ID is required");
                           return;
                         }
                         if (cubit.titleController.text.trim().isEmpty) {
-                          ShowCustomSnackbar.warning(
-                            context,
-                            message: "Product Title is required",
-                          );
+                          ShowCustomSnackbar.warning(context, message: "Product Title is required");
                           return;
                         }
                         if (cubit.descriptionController.text.trim().isEmpty) {
-                          ShowCustomSnackbar.warning(
-                            context,
-                            message: "Description is required",
-                          );
+                          ShowCustomSnackbar.warning(context, message: "Description is required");
                           return;
                         }
                         if (cubit.stockStatus == null) {
-                          ShowCustomSnackbar.warning(
-                            context,
-                            message: "Please select Stock Status",
-                          );
+                          ShowCustomSnackbar.warning(context, message: "Please select Stock Status");
                           return;
                         }
-                        cubit.saveOrUpdateProduct(
-                          isEdit: isEditMode,
-                          documentId: documentId,
-                        );
+                        cubit.saveOrUpdateProduct();
                       },
                       text: isEditMode ? "Update Product" : "Save Product",
                       boxColor: primaryColor,

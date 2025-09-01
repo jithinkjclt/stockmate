@@ -7,7 +7,7 @@ class Product {
   final DateTime dateTime;
   final String description;
   final String imageUrl;
-  final String? path;
+  final String? documentId;
 
   Product({
     required this.id,
@@ -16,7 +16,7 @@ class Product {
     required this.dateTime,
     required this.description,
     required this.imageUrl,
-    this.path,
+    this.documentId,
   });
 
   Map<String, dynamic> toMap() {
@@ -27,11 +27,10 @@ class Product {
       'dateTime': dateTime.toIso8601String(),
       'description': description,
       'imageUrl': imageUrl,
-      if (path != null) 'path': path,
     };
   }
 
-  factory Product.fromMap(Map<String, dynamic> map) {
+  factory Product.fromMap(Map<String, dynamic> map, {String? documentId}) {
     return Product(
       id: map['id'] ?? '',
       title: map['title'] ?? '',
@@ -39,7 +38,7 @@ class Product {
       dateTime: DateTime.tryParse(map['dateTime'] ?? '') ?? DateTime.now(),
       description: map['description'] ?? '',
       imageUrl: map['imageUrl'] ?? '',
-      path: map['path'],
+      documentId: documentId,
     );
   }
 

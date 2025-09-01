@@ -25,6 +25,7 @@ class AddOrEditProductCubit extends Cubit<AddProductState> {
   String? stockStatus;
   File? imageFile;
   String? existingImageUrl;
+  String? documentId;
 
   void _initializeForEdit() {
     idController.text = product!.id;
@@ -32,6 +33,7 @@ class AddOrEditProductCubit extends Cubit<AddProductState> {
     descriptionController.text = product!.description;
     stockStatus = product!.isInStock ? "in stock" : "out of stock";
     existingImageUrl = product!.imageUrl;
+    documentId = product!.documentId;
   }
 
   void stockStatusChanged(String value) {
@@ -40,19 +42,14 @@ class AddOrEditProductCubit extends Cubit<AddProductState> {
   }
 
   Future<void> pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       imageFile = File(pickedFile.path);
       emit(AddProductInitial());
     }
   }
 
-  Future<void> saveOrUpdateProduct({
-    required bool isEdit,
-    String? documentId,
-  }) async {
+  Future<void> saveOrUpdateProduct() async {
     try {
       emit(AddProductLoading());
 
@@ -74,30 +71,26 @@ class AddOrEditProductCubit extends Cubit<AddProductState> {
         imageUrl = await ref.getDownloadURL();
       }
 
-      final productData = Product(
+      final newProduct = Product(
         id: idController.text.trim(),
         title: titleController.text.trim(),
         isInStock: stockStatus == "in stock",
-        dateTime: isEdit ? product!.dateTime : DateTime.now(),
+        dateTime: documentId != null ? product!.dateTime : DateTime.now(),
         description: descriptionController.text.trim(),
         imageUrl: imageUrl ?? "",
-      ).toMap();
+        documentId: documentId,
+      );
 
       final productsCollection = FirebaseFirestore.instance
           .collection("users")
           .doc(user.uid)
           .collection("products");
 
-      if (isEdit) {
-        if (documentId == null) {
-          emit(AddProductError("Document ID is missing for update"));
-          return;
-        }
-        await productsCollection
-            .doc(documentId)
-            .set(productData, SetOptions(merge: true));
+      if (documentId != null) {
+        await productsCollection.doc(documentId).set(newProduct.toMap(), SetOptions(merge: true));
       } else {
-        await productsCollection.add(productData);
+        final docRef = await productsCollection.add(newProduct.toMap());
+        documentId = docRef.id;
       }
 
       emit(AddProductSuccess());

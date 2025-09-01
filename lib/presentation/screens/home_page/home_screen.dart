@@ -123,83 +123,91 @@ class HomeScreen extends StatelessWidget {
                     ),
                     products.isEmpty
                         ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: AppText(
-                          "No products available",
-                          size: 16,
-                          color: Colors.grey,
-                          weight: FontWeight.w500,
-                        ),
-                      ),
-                    )
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: AppText(
+                                "No products available",
+                                size: 16,
+                                color: Colors.grey,
+                                weight: FontWeight.w500,
+                              ),
+                            ),
+                          )
                         : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: products.length > 3 ? 3 : products.length,
-                      itemBuilder: (context, index) {
-                        final product = products[index];
-                        return InkWell(
-                          onTap: () {
-                            Screen.open(
-                              context,
-                              ProductDetailScreen(product: product),
-                            );
-                          },
-                          child: ProductTile(
-                            addedTime: product.formattedDateTime,
-                            imageUrl: product.imageUrl,
-                            title: product.title,
-                            productId: product.id,
-                            isInStock: product.isInStock,
-                            onOptionSelected: (value) async {
-                              try {
-                                switch (value) {
-                                  case "edit":
-                                    await Screen.open(
-                                      context,
-                                      AddOrEditProductScreen(
-                                        product: product,
-                                        documentId: product.id,
-                                      ),
-                                      begin: const Offset(1, 1),
-                                      curve: Curves.easeInOutCirc,
-                                    );
-                                    break;
-                                  case "delete":
-                                    await cubit.deleteProduct(product.id);
-                                    ShowCustomSnackbar.success(
-                                      context,
-                                      message: "${product.title} deleted",
-                                    );
-                                    break;
-                                  case "out_of_stock":
-                                    await cubit.updateStockStatus(product.id, false);
-                                    ShowCustomSnackbar.warning(
-                                      context,
-                                      message: "${product.title} → Out of Stock",
-                                    );
-                                    break;
-                                  case "in_stock":
-                                    await cubit.updateStockStatus(product.id, true);
-                                    ShowCustomSnackbar.success(
-                                      context,
-                                      message: "${product.title} → In Stock",
-                                    );
-                                    break;
-                                }
-                              } catch (e) {
-                                ShowCustomSnackbar.error(
-                                  context,
-                                  message: "Error: $e",
-                                );
-                              }
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: products.length > 3
+                                ? 3
+                                : products.length,
+                            itemBuilder: (context, index) {
+                              final product = products[index];
+                              return InkWell(
+                                onTap: () {
+                                  Screen.open(
+                                    context,
+                                    ProductDetailScreen(product: product),
+                                  );
+                                },
+                                child: ProductTile(
+                                  addedTime: product.formattedDateTime,
+                                  imageUrl: product.imageUrl,
+                                  title: product.title,
+                                  productId: product.id,
+                                  isInStock: product.isInStock,
+                                  onOptionSelected: (value) async {
+                                    try {
+                                      switch (value) {
+                                        case "edit":
+                                          await Screen.open(
+                                            context,
+                                            AddOrEditProductScreen(
+                                              product: product,
+                                            ),
+                                            begin: const Offset(1, 1),
+                                            curve: Curves.easeInOutCirc,
+                                          );
+                                          break;
+                                        case "delete":
+                                          await cubit.deleteProduct(product.id);
+                                          ShowCustomSnackbar.success(
+                                            context,
+                                            message: "${product.title} deleted",
+                                          );
+                                          break;
+                                        case "out_of_stock":
+                                          await cubit.updateStockStatus(
+                                            product.id,
+                                            false,
+                                          );
+                                          ShowCustomSnackbar.warning(
+                                            context,
+                                            message:
+                                                "${product.title} → Out of Stock",
+                                          );
+                                          break;
+                                        case "in_stock":
+                                          await cubit.updateStockStatus(
+                                            product.id,
+                                            true,
+                                          );
+                                          ShowCustomSnackbar.success(
+                                            context,
+                                            message:
+                                                "${product.title} → In Stock",
+                                          );
+                                          break;
+                                      }
+                                    } catch (e) {
+                                      ShowCustomSnackbar.error(
+                                        context,
+                                        message: "Error: $e",
+                                      );
+                                    }
+                                  },
+                                ),
+                              );
                             },
                           ),
-                        );
-                      },
-                    )
-
                   ],
                 ),
               );

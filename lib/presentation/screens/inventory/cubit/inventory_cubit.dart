@@ -37,74 +37,60 @@ class InventoryCubit extends Cubit<InventoryState> {
         .collection("products")
         .snapshots()
         .map((snapshot) {
-          final allProducts = snapshot.docs
-              .map((doc) => Product.fromMap(doc.data()))
-              .toList();
+      final allProducts = snapshot.docs
+          .map((doc) => Product.fromMap(doc.data(), documentId: doc.id))
+          .toList();
 
-          allProducts.sort((a, b) => b.dateTime.compareTo(a.dateTime));
+      allProducts.sort((a, b) => b.dateTime.compareTo(a.dateTime));
 
-          List<Product> filtered = allProducts;
-          if (isSelected == "In") {
-            filtered = filtered.where((p) => p.isInStock).toList();
-          }
-          if (isSelected == "Out") {
-            filtered = filtered.where((p) => !p.isInStock).toList();
-          }
-          if (searchQuery.isNotEmpty) {
-            filtered = filtered
-                .where((p) => p.title.toLowerCase().contains(searchQuery))
-                .toList();
-          }
+      List<Product> filtered = allProducts;
+      if (isSelected == "In") {
+        filtered = filtered.where((p) => p.isInStock).toList();
+      }
+      if (isSelected == "Out") {
+        filtered = filtered.where((p) => !p.isInStock).toList();
+      }
+      if (searchQuery.isNotEmpty) {
+        filtered = filtered
+            .where((p) => p.title.toLowerCase().contains(searchQuery))
+            .toList();
+      }
 
-          return filtered;
-        });
+      return filtered;
+    });
   }
 
-  Future<void> deleteProduct(String productId) async {
+  Future<void> deleteProduct(String documentId) async {
     try {
       final uid = _auth.currentUser?.uid;
       if (uid == null) throw Exception("No user logged in");
 
-      final querySnapshot = await _firestore
+      await _firestore
           .collection("users")
           .doc(uid)
           .collection("products")
-          .where('id', isEqualTo: productId)
-          .limit(1)
-          .get();
+          .doc(documentId)
+          .delete();
 
-      if (querySnapshot.docs.isNotEmpty) {
-        await querySnapshot.docs.first.reference.delete();
-        emit(InventoryFilterChanged());
-      } else {
-        throw Exception("Product with ID $productId not found.");
-      }
+      emit(InventoryFilterChanged());
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<void> updateStockStatus(String productId, bool newStatus) async {
+  Future<void> updateStockStatus(String documentId, bool newStatus) async {
     try {
       final uid = _auth.currentUser?.uid;
       if (uid == null) throw Exception("No user logged in");
 
-      final querySnapshot = await _firestore
+      await _firestore
           .collection("users")
           .doc(uid)
           .collection("products")
-          .where('id', isEqualTo: productId)
-          .limit(1)
-          .get();
+          .doc(documentId)
+          .update({'isInStock': newStatus});
 
-      if (querySnapshot.docs.isNotEmpty) {
-        await querySnapshot.docs.first.reference.update({
-          'isInStock': newStatus,
-        });
-        emit(InventoryFilterChanged());
-      } else {
-        throw Exception("Product with ID $productId not found.");
-      }
+      emit(InventoryFilterChanged());
     } catch (e) {
       rethrow;
     }
